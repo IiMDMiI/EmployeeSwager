@@ -1,0 +1,213 @@
+openapi: 3.0.0
+info:
+  title: Employee Management API
+  version: 1.0.0
+  description: |
+    API for managing employees
+     ### You can authorize with creds bellow
+     ### Username: user
+     ### Password: pass
+  
+servers:
+  - url: http://localhost/api/v1
+paths:
+  /employees:
+    get:
+      summary: Returns employees
+      parameters:
+        - name: id
+          in: query
+          description: Company ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            maximum: 3
+            default: 1
+        - name: dep
+          in: query
+          description: Department
+          schema:
+            type: string
+            enum: 
+              - it
+              - hr
+              - sales
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/Employee'
+                  
+                  
+        "404":
+          description: Not Found
+         
+   
+  
+  /employee:    
+    post:
+      summary: Creates an employee
+      description: | 
+        Id and department.phone will be ignored; you can omit them 
+        ### You can authorize with creds bellow
+        ### Username: user
+        ### Password: pass
+      
+      security:
+       - basicAuth: [] 
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Employee'
+      
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "11"
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Updates an employee
+      description: | 
+        ### The only mandatory field in JSON is the ID; the other fields are optional and can be omitted.
+        ### Query to only update employee's name: { "id": 11, "name": "Tom"}
+        ### Query to only update employee's passport's number: { "id": 11, "passport": {"number":"GOOO"}}
+      security:
+       - basicAuth: [] 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Employee'
+      responses:
+        "204":
+          description: Successful operation
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        
+  
+    delete:
+      summary: Deletes an employee
+      security:
+      - basicAuth: [] 
+      parameters:
+        - name: id
+          in: query
+          description: Employee's ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+            default: 1
+      responses:
+        "204":
+          description: Successful operation
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+       
+  
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Morgan"
+        surname:
+          type: string
+          example: "Freeman"
+        phone:
+          type: string
+          example: "+12344321"
+        companyId:
+          type: integer
+          example: 3
+        passport:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "regular"
+            number:
+              type: string
+              example: "ACDC"
+        department:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "sales"
+            phone:
+              type: string
+              example: "777555"
+              
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+            example: "Basic"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "0001"
+              message:
+                type: string
+                example: "Incorrect username and password"
+              detail:
+                type: string
+                example: "Ensure that the username and password included in the request are correct"
+    
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "0003"
+              message:
+                type: string
+                example: "Incorrect companyID or department"
+              detail:
+                type: string
+                example: "Ensure that the company and deparment in the request are correct"
+   
+    
+  securitySchemes:
+    basicAuth: 
+      type: http
+      scheme: basic      
