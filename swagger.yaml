@@ -9,7 +9,7 @@ info:
      ### Password: pass
   
 servers:
-  - url: http://localhost/api/v1
+  - url: https://iimdmii.online/api/v1
 paths:
   /employees:
     get:
